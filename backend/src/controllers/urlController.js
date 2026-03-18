@@ -119,3 +119,29 @@ exports.getAnalytics = async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 };
+
+exports.deleteUrl = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const userId = req.user.id;
+
+        // Verify URL belongs to user and get short_code for cache removal
+        const result = await db.query('SELECT short_code FROM urls WHERE id = $1 AND user_id = $2', [id, userId]);
+        if (result.rows.length === 0) {
+            return res.status(404).json({ message: 'URL not found or unauthorized' });
+        }
+
+        const shortCode = result.rows[0].short_code;
+
+        // Delete from database (clicks will be deleted via ON DELETE CASCADE)
+        await db.query('DELETE FROM urls WHERE id = $1', [id]);
+
+        // Remove from Redis cache
+        await redis.del(`url:${shortCode}`);
+
+        res.json({ message: 'URL deleted successfully' });
+    } catch (error) {
+        console.error('Delete URL error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};

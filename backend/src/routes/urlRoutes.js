@@ -7,5 +7,6 @@ const authMiddleware = require('../middleware/authMiddleware');
 router.post('/shorten', authMiddleware, urlController.shortenUrl);
 router.get('/', authMiddleware, urlController.getUserUrls);
 router.get('/:id/analytics', authMiddleware, urlController.getAnalytics);
+router.delete('/:id', authMiddleware, urlController.deleteUrl);
 
 module.exports = router;
