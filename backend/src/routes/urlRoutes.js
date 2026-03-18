@@ -6,6 +6,7 @@ const authMiddleware = require('../middleware/authMiddleware');
 // User authentication required for these
 router.post('/shorten', authMiddleware, urlController.shortenUrl);
 router.get('/', authMiddleware, urlController.getUserUrls);
+router.get('/stats/overview', authMiddleware, urlController.getDashboardStats);
 router.get('/:id/analytics', authMiddleware, urlController.getAnalytics);
 router.delete('/:id', authMiddleware, urlController.deleteUrl);
 

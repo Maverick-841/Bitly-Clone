@@ -145,3 +145,43 @@ exports.deleteUrl = async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 };
+
+exports.getDashboardStats = async (req, res) => {
+    try {
+        const userId = req.user.id;
+
+        // 1. Total Links count
+        const linksCount = await db.query('SELECT COUNT(*) as count FROM urls WHERE user_id = $1', [userId]);
+        const totalLinks = parseInt(linksCount.rows[0].count);
+
+        // 2. Total Clicks across all links for this user
+        const clicksCount = await db.query(`
+            SELECT COUNT(c.id) as count 
+            FROM clicks c 
+            JOIN urls u ON c.url_id = u.id 
+            WHERE u.user_id = $1
+        `, [userId]);
+        const totalClicks = parseInt(clicksCount.rows[0].count);
+
+        // 3. Simple click trends (last 7 days)
+        const trends = await db.query(`
+            SELECT DATE(c.timestamp) as date, COUNT(c.id) as count 
+            FROM clicks c 
+            JOIN urls u ON c.url_id = u.id 
+            WHERE u.user_id = $1 
+            AND c.timestamp > CURRENT_DATE - INTERVAL '7 days'
+            GROUP BY DATE(c.timestamp)
+            ORDER BY DATE(c.timestamp) ASC
+        `, [userId]);
+
+        res.json({
+            totalLinks,
+            totalClicks,
+            trends: trends.rows
+        });
+
+    } catch (error) {
+        console.error('Get dashboard stats error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
