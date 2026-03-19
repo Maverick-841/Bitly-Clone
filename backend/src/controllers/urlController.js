@@ -174,10 +174,22 @@ exports.getDashboardStats = async (req, res) => {
             ORDER BY DATE(c.timestamp) ASC
         `, [userId]);
 
+        // 4. Top Performing Links (Top 5)
+        const topLinks = await db.query(`
+            SELECT u.id, u.short_code, u.original_url, COUNT(c.id) as click_count
+            FROM urls u
+            LEFT JOIN clicks c ON u.id = c.url_id
+            WHERE u.user_id = $1
+            GROUP BY u.id
+            ORDER BY click_count DESC
+            LIMIT 5
+        `, [userId]);
+
         res.json({
             totalLinks,
             totalClicks,
-            trends: trends.rows
+            trends: trends.rows,
+            topLinks: topLinks.rows
         });
 
     } catch (error) {
