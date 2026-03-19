@@ -1,5 +1,7 @@
 const db = require('../config/db');
 const redis = require('../config/redis');
+const bcrypt = require('bcryptjs');
+const { v4: uuidv4 } = require('uuid');
 const crypto = require('crypto');
 
 // Utility to generate random string
@@ -35,10 +37,15 @@ exports.shortenUrl = async (req, res) => {
             }
         }
 
+        let passwordHash = null;
+        if (password) {
+            passwordHash = await bcrypt.hash(password, 10);
+        }
+
         // Insert into database
         const result = await db.query(
-            'INSERT INTO urls (user_id, original_url, short_code, custom_alias, expiration_date, click_limit) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
-            [userId, originalUrl, shortCode, customAlias || null, expirationDate || null, clickLimit || 0]
+            'INSERT INTO urls (user_id, original_url, short_code, custom_alias, expiration_date, click_limit, password_hash) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
+            [userId, originalUrl, shortCode, customAlias || null, expirationDate || null, clickLimit || 0, passwordHash]
         );
 
         const newUrl = result.rows[0];
@@ -194,6 +201,33 @@ exports.getDashboardStats = async (req, res) => {
 
     } catch (error) {
         console.error('Get dashboard stats error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+exports.verifyPassword = async (req, res) => {
+    const { id } = req.params; // shortCode or ID
+    const { password } = req.body;
+
+    try {
+        const result = await db.query('SELECT * FROM urls WHERE id = $1 OR short_code = $1 OR custom_alias = $1', [id]);
+        if (result.rows.length === 0) {
+            return res.status(404).json({ message: 'URL not found' });
+        }
+
+        const url = result.rows[0];
+        if (!url.password_hash) {
+            return res.json({ message: 'No password required', originalUrl: url.original_url });
+        }
+
+        const isMatch = await bcrypt.compare(password, url.password_hash);
+        if (!isMatch) {
+            return res.status(401).json({ message: 'Invalid password' });
+        }
+
+        res.json({ originalUrl: url.original_url });
+    } catch (error) {
+        console.error('Verify password error:', error);
         res.status(500).json({ message: 'Server error' });
     }
 };

@@ -58,6 +58,14 @@ exports.handleRedirect = async (req, res) => {
             [urlData.id, country, device, browser]
         ).catch(err => console.error('Error logging click:', err));
 
+        // Password Check
+        if (urlData.password_hash) {
+            // Check if already verified (via a signed cookie or just redirect to password page)
+            // For simplicity, we redirect to a dedicated frontend password entry page
+            const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+            return res.redirect(`${frontendUrl}/${shortCode}/password`);
+        }
+
         // Redirect
         res.redirect(urlData.originalUrl);
 

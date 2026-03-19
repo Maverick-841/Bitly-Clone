@@ -15,7 +15,8 @@ CREATE TABLE urls (
     custom_alias VARCHAR(100) UNIQUE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     expiration_date TIMESTAMP WITH TIME ZONE,
-    click_limit INTEGER DEFAULT 0
+    click_limit INTEGER DEFAULT 0,
+    password_hash VARCHAR(255)
 );
 
 -- Index for fast lookup on short codes

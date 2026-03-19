@@ -7,7 +7,8 @@ const authMiddleware = require('../middleware/authMiddleware');
 router.post('/shorten', authMiddleware, urlController.shortenUrl);
 router.get('/', authMiddleware, urlController.getUserUrls);
 router.get('/stats/overview', authMiddleware, urlController.getDashboardStats);
-router.get('/:id/analytics', authMiddleware, urlController.getAnalytics);
-router.delete('/:id', authMiddleware, urlController.deleteUrl);
+router.get('/stats/overview', auth, urlController.getDashboardStats);
+router.post('/:id/verify-password', urlController.verifyPassword);
+router.delete('/:id', auth, urlController.deleteUrl);
 
 module.exports = router;
