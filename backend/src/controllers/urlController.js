@@ -11,7 +11,7 @@ const generateShortCode = (length = 6) => {
 
 exports.shortenUrl = async (req, res) => {
     try {
-        const { originalUrl, customAlias, expirationDate, clickLimit } = req.body;
+        const { originalUrl, customAlias, expirationDate, clickLimit, password } = req.body;
         const userId = req.user ? req.user.id : null;
 
         if (!originalUrl) {

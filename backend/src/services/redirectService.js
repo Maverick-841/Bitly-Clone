@@ -24,7 +24,8 @@ exports.handleRedirect = async (req, res) => {
                 id: row.id,
                 originalUrl: row.original_url,
                 expirationDate: row.expiration_date,
-                clickLimit: row.click_limit
+                clickLimit: row.click_limit,
+                password_hash: row.password_hash
             };
 
             // Re-cache for future
