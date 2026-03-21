@@ -23,6 +23,7 @@ CREATE TABLE urls (
 CREATE INDEX idx_urls_short_code ON urls(short_code);
 CREATE INDEX idx_urls_custom_alias ON urls(custom_alias);
 CREATE INDEX idx_urls_user_id ON urls(user_id);
+CREATE INDEX idx_urls_user_created ON urls(user_id, created_at DESC);
 
 CREATE TABLE clicks (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),

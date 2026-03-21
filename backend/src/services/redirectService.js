@@ -38,11 +38,20 @@ exports.handleRedirect = async (req, res) => {
         }
 
         if (urlData.clickLimit > 0) {
-            // Count current clicks
-            const clickCountResult = await db.query('SELECT COUNT(*) FROM clicks WHERE url_id = $1', [urlData.id]);
-            const clickCount = parseInt(clickCountResult.rows[0].count);
+            // Use Redis INCR for fast click counting
+            let clickCount = await redis.incr(`clicks:${urlData.id}`);
             
-            if (clickCount >= urlData.clickLimit) {
+            // If it was just initialized (or was empty), sync from DB once
+            if (clickCount === 1) {
+                const dbCountResult = await db.query('SELECT COUNT(*) FROM clicks WHERE url_id = $1', [urlData.id]);
+                const initialCount = parseInt(dbCountResult.rows[0].count);
+                if (initialCount > 0) {
+                    clickCount = initialCount + 1;
+                    await redis.set(`clicks:${urlData.id}`, clickCount);
+                }
+            }
+            
+            if (clickCount > urlData.clickLimit) {
                 return res.status(410).send('This link has reached its click limit');
             }
         }

@@ -59,6 +59,8 @@ exports.shortenUrl = async (req, res) => {
             clickLimit: newUrl.click_limit
         });
         await redis.set(`url:${shortCode}`, cacheData);
+        await redis.set(`clicks:${newUrl.id}`, 0); // Initialize click count in Redis
+
 
         res.status(201).json(newUrl);
 
@@ -145,6 +147,7 @@ exports.deleteUrl = async (req, res) => {
 
         // Remove from Redis cache
         await redis.del(`url:${shortCode}`);
+        await redis.del(`clicks:${id}`);
 
         res.json({ message: 'URL deleted successfully' });
     } catch (error) {
