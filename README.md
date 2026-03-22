@@ -37,6 +37,7 @@ The easiest way to run the entire application stack is using Docker Compose.
 3. **Access the application**:
    - Web App: http://localhost
    - API Services: http://localhost/api
+   - Health Check: http://localhost/api/health
 
 ## 📂 Project Structure
 
