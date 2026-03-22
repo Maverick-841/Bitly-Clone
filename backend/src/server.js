@@ -22,6 +22,11 @@ const globalLimiter = rateLimit({
 });
 app.use(globalLimiter);
 
+// Health Check
+app.get('/health', (req, res) => {
+    res.json({ status: 'OK', timestamp: new Date(), uptime: process.uptime() });
+});
+
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/urls', urlRoutes);

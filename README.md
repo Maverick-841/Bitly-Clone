@@ -5,14 +5,10 @@ A production-ready, full-stack scalable URL shortening platform built to handle 
 ## ✨ Features
 
 - **Scalable Architecture**: Next.js frontend, Node.js/Express API, PostgreSQL database, and Redis caching.
+- **High-Performance Click Tracking**: Leveraging Redis `INCR` for atomic, sub-millisecond click limit verification, bypassing database bottlenecks.
 - **Lightning Fast Redirects**: High-performance URL resolution using Redis before hitting the database.
-- **Real-Time Analytics Dashboard**: Track total clicks, timelines, browsers, devices, and geographic locations using Chart.js.
-- **Premium UI/UX**: Dark mode aesthetic, glassmorphism, fully responsive design using Tailwind CSS.
-- **Custom Aliases**: Create branded, memorable short links.
-- **Advanced Controls**: Set link expiration dates and maximum click limits.
-- **Security**: JWT Authentication, precise rate-limiting to prevent abuse (100 req/min/IP).
-- **QR Code Generation**: Automatically generate QR codes for each shortened link.
-- **Dockerized infrastructure**: Deploy instantly using Docker Compose.
+- **Health Monitoring**: Integrated `/health` endpoint for infrastructure monitoring and uptime tracking.
+- **Real-Time Analytics Dashboard**: Track total clicks, timelines, browsers, devices, and geographic locations.
 
 ## 🛠️ Tech Stack
 
