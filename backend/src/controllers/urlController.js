@@ -149,6 +149,35 @@ exports.getAnalytics = async (req, res) => {
     }
 };
 
+exports.exportAnalytics = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const userId = req.user.id;
+
+        // Verify URL belongs to user
+        const urlVerify = await db.query('SELECT * FROM urls WHERE id = $1 AND user_id = $2', [id, userId]);
+        if (urlVerify.rows.length === 0) {
+            return res.status(404).json({ message: 'URL not found or unauthorized' });
+        }
+
+        const clicks = await db.query('SELECT * FROM clicks WHERE url_id = $1 ORDER BY timestamp DESC', [id]);
+        
+        // Build CSV string
+        let csv = 'Timestamp,Country,Browser,Device\n';
+        clicks.rows.forEach(click => {
+            csv += `${new Date(click.timestamp).toISOString()},${click.country || 'Unknown'},${click.browser || 'Unknown'},${click.device || 'Unknown'}\n`;
+        });
+
+        res.setHeader('Content-Type', 'text/csv');
+        res.setHeader('Content-Disposition', `attachment; filename="analytics-${id}.csv"`);
+        res.send(csv);
+
+    } catch (error) {
+        console.error('Export analytics error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
 exports.deleteUrl = async (req, res) => {
     try {
         const { id } = req.params;
