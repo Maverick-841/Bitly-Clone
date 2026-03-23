@@ -73,9 +73,29 @@ exports.shortenUrl = async (req, res) => {
 exports.getUserUrls = async (req, res) => {
     try {
         const userId = req.user.id;
-        const result = await db.query('SELECT * FROM urls WHERE user_id = $1 ORDER BY created_at DESC', [userId]);
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const offset = (page - 1) * limit;
 
-        res.json(result.rows);
+        // Get total count for pagination
+        const countResult = await db.query('SELECT COUNT(*) FROM urls WHERE user_id = $1', [userId]);
+        const totalCount = parseInt(countResult.rows[0].count);
+
+        // Get paginated data
+        const result = await db.query(
+            'SELECT * FROM urls WHERE user_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3',
+            [userId, limit, offset]
+        );
+
+        res.json({
+            urls: result.rows,
+            pagination: {
+                totalCount,
+                totalPages: Math.ceil(totalCount / limit),
+                currentPage: page,
+                limit
+            }
+        });
     } catch (error) {
         console.error('Get user URLs error:', error);
         res.status(500).json({ message: 'Server error' });
