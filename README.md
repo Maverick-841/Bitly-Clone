@@ -196,36 +196,3 @@ Indexes are included for short-code lookups, user URL listing, and click analyti
 ## License
 
 No explicit license file is currently present in this repository.
-
-## 🔐 Environment Variables
-
-If running locally without Docker, ensure you have the following `.env` configurations set in the backend:
-
-```env
-PORT=5000
-DB_USER=admin
-DB_PASSWORD=password123
-DB_HOST=localhost
-DB_PORT=5432
-DB_NAME=url_shortener
-REDIS_URL=redis://localhost:6379
-JWT_SECRET=supersecret_jwt_key_here
-CLIENT_URL=http://localhost:3000
-```
-
-Frontend `.env.local`:
-```env
-NEXT_PUBLIC_API_URL=http://localhost:5000/api
-```
-
-*(Note: These are automatically handled via Docker Compose in this setup).*
-
-## 📊 Analytics Tracking
-
-The `/redirect` service parses incoming traffic and extracts metadata:
-- Browser and Device via `useragent`
-- Click timestamps
-These metrics feed directly into the `Chart.js` components on the Next.js frontend for an instant visual breakdown.
-
----
-*Built as a professional GitHub portfolio project.*
