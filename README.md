@@ -132,6 +132,16 @@ Stop stack and remove volumes:
 docker compose down -v
 ```
 
+## Quick API Smoke Test
+
+After starting services, verify the API is reachable:
+
+```bash
+curl http://localhost/api/health
+```
+
+Expected response should include a healthy status from the backend.
+
 ## Local Backend Setup (Without Docker)
 
 Prerequisites:
